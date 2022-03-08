@@ -10,4 +10,6 @@ public interface AccountService {
     Flux<Account> findAll();
     Mono<Account> update(Account a);
     Mono<Void> delete(String id);
+
+    Flux<Account> findAllByIdCustomer(String idCustomer);
 }

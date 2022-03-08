@@ -1,8 +1,13 @@
 package com.nttdata.bcp1.msaccout.controller;
 
+import com.nttdata.bcp1.msaccout.MsAccoutApplication;
 import com.nttdata.bcp1.msaccout.model.Account;
+import com.nttdata.bcp1.msaccout.model.Customer;
 import com.nttdata.bcp1.msaccout.service.AccountService;
+import com.nttdata.bcp1.msaccout.service.CustomerServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
@@ -16,6 +21,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/account")
 @RequiredArgsConstructor
 public class AccountController {
+
+
     @Autowired
     AccountService accountService;
 
@@ -49,5 +56,13 @@ public class AccountController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public Mono<Void> delete(@PathVariable("id") String id){
         return accountService.delete(id);
+    }
+
+
+    @GetMapping(value = "/getAllByCustomer/{idCustomer}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @ResponseStatus
+    public ResponseEntity<Flux<Account>> findAllByIdCustomer(@PathVariable("idCustomer") String idCustomer){
+        Flux<Account> accountFlux = accountService.findAllByIdCustomer(idCustomer);
+        return new ResponseEntity<Flux<Account>>(accountFlux,accountFlux!=null? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
 }
