@@ -5,7 +5,8 @@ spring:
     active:
       - dev #(2)
   config:
-    import: optional:configserver:http://config-server:9010
+    import: optional:configserver:http://localhost:9010
+    #import: optional:configserver:http://config-server:9010
   cloud:
     config:
       profile: dev
@@ -15,4 +16,5 @@ backend:
     #url: http://localhost:8082/dummy-client2/saludo
   eureka:
     customer:
-      get-by-id: http://server-gateway/customer/{id}
+      get-by-id: http://localhost:9020/customer/{id}
+      #get-by-id: http://server-gateway/customer/{id}
