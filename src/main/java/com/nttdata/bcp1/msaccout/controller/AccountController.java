@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/account")
 @RequiredArgsConstructor
 public class AccountController {
-
+    private static final Logger logger = LogManager.getLogger(MsAccoutApplication.class);
 
     @Autowired
     AccountService accountService;
@@ -32,14 +32,14 @@ public class AccountController {
         return accountService.create(account);
     }
 
-    @GetMapping(value = "/{id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping("/{id}")
     @ResponseStatus
     public ResponseEntity<Mono<Account>> findById(@PathVariable("id") String id){
         Mono<Account> accountMono = accountService.findById(id);
         return new ResponseEntity<Mono<Account>>(accountMono,accountMono!=null? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/getAll")
+    @GetMapping(value = "/getAll", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @ResponseStatus
     public Flux<Account> findAll(){
         return accountService.findAll();
@@ -48,6 +48,7 @@ public class AccountController {
     @PutMapping("/update")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Mono<Account>> update(@RequestBody Account account){
+        logger.info("account: " + account.toString());
         Mono<Account> accountMono = accountService.update(account);
         return new ResponseEntity<Mono<Account>>(accountMono, accountMono!=null? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
