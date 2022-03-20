@@ -26,7 +26,6 @@ public class CustomerServiceImpl {
                 .get()
                 .uri(urlGetCustomerById,id)
                 .retrieve()
-                .bodyToMono(Customer.class)
-                ;
+                .bodyToMono(Customer.class);
     }
 }

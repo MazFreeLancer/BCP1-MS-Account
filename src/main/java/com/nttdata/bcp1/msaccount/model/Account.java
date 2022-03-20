@@ -17,8 +17,8 @@ public class Account {
     private String id;
     private String idCustomer;
     private Float balance;
-    private Float maintenace;
-    private Integer numberTransaction;
-    private Integer maxTransaction;
+    private Float maintenance;
+    private Integer maxTransactions;
     private AccountType accountType;
+    private Float commission;
 }
