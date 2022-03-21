@@ -1,18 +1,11 @@
-package com.nttdata.bcp1.msaccout.controller;
+package com.nttdata.bcp1.msaccount.controller;
 
-import com.nttdata.bcp1.msaccout.MsAccoutApplication;
-import com.nttdata.bcp1.msaccout.model.Account;
-import com.nttdata.bcp1.msaccout.model.Customer;
-import com.nttdata.bcp1.msaccout.service.AccountService;
-import com.nttdata.bcp1.msaccout.service.CustomerServiceImpl;
+import com.nttdata.bcp1.msaccount.model.Account;
+import com.nttdata.bcp1.msaccount.service.AccountService;
+import com.nttdata.bcp1.msaccount.service.AccountServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,7 +15,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class AccountController {
 
-    private final AccountService accountService;
+    private final AccountServiceImpl accountService;
 
     @GetMapping
     public Flux<Account> getAccounts(){
@@ -34,12 +27,12 @@ public class AccountController {
         return accountService.getAccountById(id);
     }
 
-    @GetMapping("/byClient/{id}")
-    public Flux<Account> getByIdClient(@PathVariable("id") String idClient){
-        return accountService.getAllByIdClient(idClient);
+    @GetMapping("/byCustomer/{id}")
+    public Flux<Account> getByIdClient(@PathVariable("id") String idCustomer){
+        return accountService.getAllByIdCustomer(idCustomer);
     }
 
-    @PostMapping
+    @PostMapping("/create")
     Mono<Account> postAccount(@RequestBody Account account){
         return accountService.save(account);
     }
@@ -57,6 +50,6 @@ public class AccountController {
 
     @DeleteMapping("/{id}")
     void dltAccount(@PathVariable("id") String id){
-        service.delete(id);
+        accountService.delete(id);
     }
 }

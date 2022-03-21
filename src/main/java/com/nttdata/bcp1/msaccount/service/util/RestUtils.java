@@ -1,4 +1,4 @@
-package com.nttdata.bcp1.msaccout.service.util;
+package com.nttdata.bcp1.msaccount.service.util;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;

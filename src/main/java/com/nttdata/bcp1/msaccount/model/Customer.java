@@ -1,4 +1,4 @@
-package com.nttdata.bcp1.msaccout.model;
+package com.nttdata.bcp1.msaccount.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,5 +18,5 @@ public class Customer {
     private String name;
     private String docType;
     private String docNumber;
-    private CustomerType customerType;
+    private String customerType;
 }

@@ -1,4 +1,4 @@
-package com.nttdata.bcp1.msaccout;
+package com.nttdata.bcp1.msaccount;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,12 +10,12 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
 @SpringBootApplication
 @EnableEurekaClient
-public class MsAccoutApplication implements ApplicationRunner {
+public class MsAccountApplication implements ApplicationRunner {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MsAccoutApplication.class, args);
+		SpringApplication.run(MsAccountApplication.class, args);
 	}
-	private static final Logger logger = LogManager.getLogger(MsAccoutApplication.class);
+	private static final Logger logger = LogManager.getLogger(MsAccountApplication.class);
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		logger.debug("Debug de la aplicación");

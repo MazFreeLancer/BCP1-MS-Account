@@ -1,27 +1,24 @@
-package com.nttdata.bcp1.msaccout.service;
+package com.nttdata.bcp1.msaccount.service;
 
-import com.nttdata.bcp1.msaccout.MsAccoutApplication;
-import com.nttdata.bcp1.msaccout.model.Account;
-import com.nttdata.bcp1.msaccout.model.Customer;
-import com.nttdata.bcp1.msaccout.repository.AccountRepository;
+import com.nttdata.bcp1.msaccount.MsAccountApplication;
+import com.nttdata.bcp1.msaccount.model.Account;
+import com.nttdata.bcp1.msaccount.model.Customer;
+import com.nttdata.bcp1.msaccount.model.DebitCard;
+import com.nttdata.bcp1.msaccount.proxy.AccountProxy;
+import com.nttdata.bcp1.msaccount.repository.AccountRepository;
+import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
+@AllArgsConstructor
 public class AccountServiceImpl implements AccountService{
-
-    @Autowired
+    private static final Logger logger = LogManager.getLogger(MsAccountApplication.class);
     private final AccountRepository repository;
 
-    @Autowired
     private final AccountProxy accountProxy = new AccountProxy();
 
     @Override
@@ -35,24 +32,25 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public Flux<Account> getAllByIdClient(String idClient) {
-        return repository.findAllByIdClient(idClient);
+    public Flux<Account> getAllByIdCustomer(String idCustomer) {
+        return repository.findAllByIdCustomer(idCustomer);
     }
 
     @Override
     public Mono<Account> save(Account account) {
-
-        switch (account.getTypeAccount()) {
-            case "cuenta de ahorro":
+        //return repository.save(account);
+        logger.info("Account Type = " + account.getAccountType());
+        switch (account.getAccountType()) {
+            case "DEBIT":
+                //return Mono.error(() -> new IllegalArgumentException("Entro a debit"));
                 return createCuentaAhorro(account).flatMap(repository::save);
-            case "cuenta corriente":
+            case "CURRENT_ACCOUNT":
                 return createCuentaCorriente(account).flatMap(repository::save);
-            case "cuenta plazo fijo":
+            case "FIXED_DEPOSIT":
                 return createCuentaPlazoFijo(account).flatMap(repository::save);
             default:
                 return Mono.error(() -> new IllegalArgumentException("Invalid Account type"));
         }
-
     }
 
     @Override
@@ -61,8 +59,8 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public Mono<Account> getAccountByIdClientAndTypeAccount(String idClient, String typeAccount) {
-        return repository.findByIdClientAndTypeAccount(idClient, typeAccount);
+    public Mono<Account> getAccountByIdCustomerAndAccountType(String idCustomer, String accountType) {
+        return repository.findByIdCustomerAndAccountType(idCustomer, accountType);
     }
 
     @Override
@@ -71,15 +69,17 @@ public class AccountServiceImpl implements AccountService{
                 .flatMap(this::save);
     }
 
+
     //PRODUCT VALIDATION METHODS
     public Mono<Account> createCuentaAhorro(Account account){
-        return getClient(account).flatMap(client -> {
+        return getCustomer(account).flatMap(customer -> {
 
-            switch (client.getType()) {
-                case "personal":
+            switch (customer.getCustomerType()) {
+                case "PERSONAL":
+                    //return Mono.error(() -> new IllegalArgumentException("Entro a PErsonal"));
                     return Mono.just(account).flatMap(this::clientHasAccountAlready);
-                case "business":
-                    return Mono.error(() -> new IllegalArgumentException("Business Client can't have this sccount type"));
+                case "BUSINESS":
+                    return Mono.error(() -> new IllegalArgumentException("Business Client can't have this account type"));
                 default:
                     return Mono.error(() -> new IllegalArgumentException("Invalid Client type"));
             }
@@ -88,12 +88,12 @@ public class AccountServiceImpl implements AccountService{
     }
 
     public Mono<Account> createCuentaCorriente(Account account){
-        return getClient(account).flatMap(client -> {
+        return getCustomer(account).flatMap(customer -> {
 
-            switch (client.getType()) {
-                case "personal":
+            switch (customer.getCustomerType()) {
+                case "PERSONAL":
                     return Mono.just(account).flatMap(this::clientHasAccountAlready);
-                case "business":
+                case "BUSINESS":
                     return Mono.just(account);
                 default:
                     return Mono.error(() -> new IllegalArgumentException("Invalid Client type"));
@@ -103,13 +103,13 @@ public class AccountServiceImpl implements AccountService{
     }
 
     public Mono<Account> createCuentaPlazoFijo(Account account){
-        return getClient(account).flatMap(client -> {
+        return getCustomer(account).flatMap(customer -> {
 
-            switch (client.getType()) {
-                case "personal":
+            switch (customer.getCustomerType()) {
+                case "PERSONAL":
                     return Mono.just(account).flatMap(this::clientHasAccountAlready);
-                case "business":
-                    return Mono.error(() -> new IllegalArgumentException("Business Client can't have this sccount type"));
+                case "BUSINESS":
+                    return Mono.error(() -> new IllegalArgumentException("Business Client can't have this account type"));
                 default:
                     return Mono.error(() -> new IllegalArgumentException("Invalid Client type"));
             }
@@ -118,8 +118,8 @@ public class AccountServiceImpl implements AccountService{
     }
 
     //PRODUCT UTIL METHODS
-    public Mono<Client> getClient(Account account){
-        return accountProxy.getClient(account.getIdClient());
+    public Mono<Customer> getCustomer(Account account){
+        return accountProxy.getCustomer(account.getIdCustomer());
     }
 
     public Mono<DebitCard> getDebitCard(String idDebitCard){
@@ -127,7 +127,8 @@ public class AccountServiceImpl implements AccountService{
     }
 
     public Mono<Account> clientHasAccountAlready(Account account){
-        return getAccountByIdClientAndTypeAccount(account.getIdClient(), account.getTypeAccount())
+        logger.info("getAccountByIdCustomerAndAccountType = " + Mono.just(getAccountByIdCustomerAndAccountType(account.getIdCustomer(), account.getAccountType())));
+        return getAccountByIdCustomerAndAccountType(account.getIdCustomer(), account.getAccountType())
                 .switchIfEmpty(Mono.just(new Account()))
                 .flatMap(resp -> {
                     if(resp.getId()==null || resp.getId().equals(account.getId())) {
@@ -137,9 +138,9 @@ public class AccountServiceImpl implements AccountService{
                 });
     }
 
-    public Mono<Account> putCardIntoAccount(Account account, String idCard){
+    public Mono<Account> putCardIntoAccount(Account account,String idCard){
         return cardExist(idCard).flatMap(resp->{
-            if(resp.getIdClient().equals(account.getIdClient())) {
+            if(resp.getIdCustomer().equals(account.getIdCustomer())) {
                 account.setIdCard(idCard);
                 return Mono.just(account);
             }else {

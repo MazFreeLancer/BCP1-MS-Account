@@ -1,4 +1,4 @@
-package com.nttdata.bcp1.msaccout.config;
+package com.nttdata.bcp1.msaccount.config;
 
 import lombok.Data;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
