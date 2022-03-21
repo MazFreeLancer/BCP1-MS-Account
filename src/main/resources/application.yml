@@ -16,5 +16,5 @@ backend:
     #url: http://localhost:8082/dummy-client2/saludo
   eureka:
     customer:
-      get-by-id: http://localhost:9020/customer/{id}
+      get-by-id: http://server-gateway:9020/customer/{id}
       #get-by-id: http://server-gateway/customer/{id}
